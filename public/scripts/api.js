@@ -2,7 +2,6 @@
 'use strict';
 
 const api = {
-  
   search: function (query, callback) {
     $.ajax({
       type: 'GET',
