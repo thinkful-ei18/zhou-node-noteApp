@@ -2,6 +2,7 @@
 'use strict';
 
 const api = {
+  
   search: function (query, callback) {
     $.ajax({
       type: 'GET',
@@ -11,12 +12,14 @@ const api = {
       success: callback
     });
   },
-  // details: function (id, callback) {
-  //   $.ajax({
-  //     type: 'GET',
-  //     dataType: 'json',
-  //     url: `/v1/notes/${id}`,
-  //     success: callback
-  //   });
-  // }
+  
+  details: function (id, callback) {
+    $.ajax({
+      type: 'GET',
+      dataType: 'json',
+      url: `/v1/notes/${id}`,
+      success: callback
+    });
+  }
+  
 }; 

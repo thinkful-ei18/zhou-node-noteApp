@@ -1,4 +1,4 @@
-/* global $ store api moment*/
+/* global $ store api*/
 'use strict';
 
 const noteful = (function () {
@@ -45,26 +45,27 @@ const noteful = (function () {
         store.currentNote = response;
         render();
       });
+
     });
   }
 
-  // function handleNoteSearchSubmit() {
-  //   $('.js-notes-search-form').on('submit', event => {
-  //     event.preventDefault();
+  function handleNoteSearchSubmit() {
+    $('.js-notes-search-form').on('submit', event => {
+      event.preventDefault();
 
-  //     const searchTerm = $('.js-note-search-entry').val();
-  //     store.currentSearchTerm =  searchTerm ? { searchTerm } : {};
+      const searchTerm = $('.js-note-search-entry').val();
+      store.currentSearchTerm =  searchTerm ? { searchTerm } : {};
       
-  //     api.search(store.currentSearchTerm, response => {
-  //       store.notes = response;
-  //       render();
-  //     });
-  //   });
-  // }
+      api.search(store.currentSearchTerm, response => {
+        store.notes = response;
+        render();
+      });
+    });
+  }
 
   function bindEventListeners() {
     handleNoteItemClick();
-    // handleNoteSearchSubmit();
+    handleNoteSearchSubmit();
   }
 
   // This object contains the only exposed methods from this module:
