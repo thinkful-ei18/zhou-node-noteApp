@@ -65,9 +65,31 @@ const noteful = (function () {
     });
   }
 
+  function handlenoteFormSubmit() {
+    $('.js-note-edit-form').submit( event => {
+      event.preventDefault();
+
+      const editForm = $(event.currentTarget);
+      const noteObj = {
+        title: editForm.find('.js-note-title-entry').val(),
+        content: editForm.find('.js-note-content-entry').val(),
+      };
+      noteObj.id = store.currentNote.id;
+
+      api.update(noteObj.id, noteObj, updateRes => {
+        console.log('client/noteful',updateRes);
+        store.currentNote = updateRes;
+        const oldNote = store.notes.find( note => note.id === noteObj.id);
+        Object.assign(oldNote, updateRes);
+        render();
+      });
+    });
+  }
+
   function bindEventListeners() {
     handleNoteItemClick();
     handleNoteSearchSubmit();
+    handlenoteFormSubmit();
   }
 
   // This object contains the only exposed methods from this module:

@@ -19,6 +19,17 @@ const api = {
       url: `/v1/notes/${id}`,
       success: callback
     });
+  },
+
+  update: function(id,obj,callback) {
+    $.ajax({
+      type:'PUT',
+      dataType:'json',
+      contentType:'application/json',
+      url:`v1/notes/${id}`,
+      data: JSON.stringify(obj),
+      success: callback
+    });
   }
   
 }; 
