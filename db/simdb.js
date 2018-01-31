@@ -2,7 +2,6 @@
 
 // Simple In-Memory Database (async-callback version)
 const DELAY = 1;
-
 const simDB = {
   
   // Synchronous Initialize
@@ -17,11 +16,11 @@ const simDB = {
   
   // Asynchronous CRUD operations
   create: function (newItem, callback) {
-    setTimeout(() => {
+    setTimeout(() => { //mocking api event
       try {
         newItem.id = this.nextVal++;
         this.data.push(newItem);
-        callback(null, newItem);
+        callback(null, newItem); // error = null
       } catch (err) {
         callback(err);
       }
@@ -29,7 +28,6 @@ const simDB = {
   },
 
   filter: function (term, callback) {
-    
     setTimeout(() => {
       try {
         let list = term ? this.data.filter(item => item.title.includes(term)) : this.data;

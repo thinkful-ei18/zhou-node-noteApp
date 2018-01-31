@@ -6,9 +6,11 @@ console.log('hello world!');
 
 // INSERT EXPRESS APP CODE HERE...
 const app = express();
+//hosting client side assets
 app.use(express.static('public'));
+//import bodyParcer ? What does bodyParcer do?
 app.use(express.json());
-const {PORT} = require('./middle_wares/config');
+const {PORT} = require('./config');
 const simDB = require('./db/simdb');
 const notes = simDB.initialize(data);
 const {logger} = require('./middle_wares/logger');
@@ -28,7 +30,7 @@ app.get('/v1/notes', (req,res,next)=> {
 
 //================================
 //get note == id
-app.get('/v1/notes/:id', (req,res,next)=> {
+app.get('/v1/notes/:id', (req,res)=> {
   const myId = Number(req.params.id);
   notes.find(myId, (err, item) => {
     if(err) console.error(err);
@@ -41,7 +43,7 @@ app.get('/v1/notes/:id', (req,res,next)=> {
 });
 
 //===============================
-app.put('/v1/notes/:id', (req, res, next) => {
+app.put('/v1/notes/:id', (req, res) => {
   const id = req.params.id;
   const updateObj = {};
   const updateFields = ['title', 'content'];
@@ -66,13 +68,6 @@ app.put('/v1/notes/:id', (req, res, next) => {
 });
 //=================================
 // error handle 404 and run time
-// function catch404(req,res,next){
-//   var err = new Error('Not Found');
-//   console.log(err);
-//   err.status = 404;
-//   res.status(404).json({message:' message: not found'});
-//   next(err);
-// }
 
 app.use( (err, req, res, next) => {
   console.log(err);

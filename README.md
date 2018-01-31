@@ -1,172 +1,302 @@
-# Noteful Challenge
+# Noteful Challenge - RESTful
+
+For this challenge, you'll replace the custom logger with Morgan, then you'll create an Express Router and move the existing routes from `server.js` into the router. This will clean up the `server.js` and set the stage to create additional functionality. Next, you'll create two new features, the ability to create **new** and **delete** Notes. We approach these tasks as "vertical" slices of functionality. IOW, you will implement the **create new note** feature on both the server and the client, and get it full working before moving on to **delete a note**. Contrast the "vertical" approach to the "horizontal" where you would implement all the server-side features before moving beginning work on the client. You will likely encounter both approaches "in-the-wild" but the vertical approach is becoming more prevalent the agile-community.
 
 ## Requirements
 
-For this challenge, you'll build a basic note-taking API using Node/Express and a simple in-memory database. The starter repo contains a client applications which makes calls to the server.
+* Swap custom logger with Morgan
+* Move endpoints to Express Router
+* Implement save a new Note feature
+* Implement delete a Note feature
 
-Here are the requirements for this app:
+## Replace custom logger with Morgan
 
-* Setup your project using the starter provided
-* Install `express` and setup a `start` command
-* Implement a static server which hosts the noteful client app files
-* Create 2 GET endpoints:
-  * GET notes returns the full list of notes based on the search term. If no search term is found then it returns the full list of notes.
-  * GET a note by ID returns a specific note based on the ID provided.
-
-## Getting Started
-
-You'll be working with the [noteful-app-v1](https://github.com/cklanac/noteful-app-v1.git) repo. It has the following branches to help guide you along the way.
-# noteful-app-v1
-
-Noteful V1. Course challenge to build a RESTful API using Node/Express, Mocha, Chai and Continuous Integration via Travis CI.
-
-## Overview
-
-The repo provides several branches to serve as starters, solutions and hints along the way.
-
-* **empty**: base branch used for code reviews
-
-* **master**: Starting Point and default working branch
-
-* **solution/1-basics**: solution for basic node and express application using `express.static` and 2 GET endpoints.
-
-* **solution/2-middleware**: solution for adding the `sim-db` and `logging` middleware.
-
-* **solution/3-restful**: solution for adding RESTful endpoints with callback style queries to `sim-db`
-
-* **solution/4-promises**: solution for converting callbacks to promises
-
-* **solution/5-testing**: solution for testing and continuous integration
-
-* **solution/6-extra-credit**: solution for converting promises to async-await and additional modularization
-
-
-**To get started**, you'll need to [clone](https://help.github.com/articles/cloning-a-repository/) the [noteful-app-v1](https://github.com/cklanac/noteful-app-v1.git) repo to your local development environment.
-
-Go to the [noteful-app-v1](https://github.com/cklanac/noteful-app-v1.git) on GitHub and click the green "Clone or download" button, then in the pop-up click on the "Copy to clipboard" icon to copy the URL to your clipboard.
-
-In your terminal,`cd` into the directory where you want to manage your project. At the command prompt, type the following `git clone ` (including a space after the word `clone`) then paste the URL you copied from GitHub after that on the command line and press enter.
-
-Using HTTPS
+Before getting started with the Express Router, let's replace the custom logger with Morgan. First, you need to install Morgan in your project. From the command line run the following command.
 
 ```sh
-git clone https://github.com/cklanac/noteful-app-v1.git
+npm install morgan
 ```
 
-Using SSH
+> Remember that in NPM v5.x and up, saving the package to the dependencies property is now the default. So the `--save` flag is optional.
 
-```sh
-git clone git@github.com:cklanac/noteful-app-v1.git
+Check `dependencies` property in the `package.json` file to ensure it was inserted correctly.
+
+In `server.js`, require and use Morgan. Recall, it is convention to place `require()` calls towards to the top of the file. And the `app.use()` method needs a valid Express `app` so it goes after `const app = express();` but before `app.use(express.static('public'));`. The start of your `server.js` file should look something like this:
+
+```js
+const express = require('express');
+const morgan = require('morgan');
+
+const { PORT } = require('./config');
+
+// Create an Express application
+const app = express();
+
+// Log all requests
+app.use(morgan('dev'));
+
+// Create a static webserver
+app.use(express.static('public'));
+...
 ```
 
-Once the cloning process is complete, `cd` into the new folder named `noteful-app-v1` and enter `git status` on the command line. You should see "nothing to commit, working tree clean" message.
+Restart you app and make sure Morgan is logging requests properly. Does it log all requests to both static files and data endpoints?
 
-Next, go back to GitHub and use the "+" icon in the top right corner of the header to create a new repo in the Cohort Github Organization called "[YOUR-NAME]-noteful-v1" (do *not* initialize the repository with a README). On the next screen, under the heading "Quick setup — if you’ve done this kind of thing before" click the "Copy to clipboard" icon to copy the SSH URL of your new repository to the clipboard.
+## Move endpoints to Express Router
 
-Back in the terminal window, enter `git remote set-url origin ` then paste the new repository's URL you just copied from GitHub and press enter. Enter `git remote -v` and you should see a remote called origin pointing to your new repository on GitHub for both fetch and push.
+The `server.js` is beginning to look a bit clutters. Let's do something about that by moving the endpoints into a router.
 
-Using HTTPS
+First, create `router` folder and inside it, create a `notes.router.js` file.
 
-```sh
-git remote set-url origin https://github.com/[COHORT]/[YOUR-NAME]noteful-app.git
+Next follow these steps to setup your router:
+
+* Express Router needs access to Express so require it and create a instance of a `router`
+* Move the code to require and initialize the `simDb` from `server.js` to `notes.router.js`
+* Move the endpoints from `server.js` to `router/notes.router.js`
+* Change `app.METHOD` to `router.METHOD`
+* Export the router
+
+Your `notes.router.js` file should now look something like this (some code removed for brevity):
+
+```js
+const express = require('express');
+const router = express.Router();
+
+const data = require('./db/notes');
+const simDB = require('./db/simDB');
+const notes = simDB.initialize(data);
+
+// Get All (and search by query)
+router.get('/notes', (req, res, next) => {
+  // remove for brevity
+});
+
+// Get a single item
+router.get('/notes/:id', (req, res, next) => {
+  // remove for brevity
+});
+
+// Put update an item
+router.put('/notes/:id', (req, res, next) => {
+  // remove for brevity
+});
+
+module.exports = router;
 ```
 
-Enter `git push` on the command line, then go back to GitHub and refresh the page. You should see the contents of your local repo are now up on GitHub inside your own account.
+Now, require and use the new router in `server.js`. Add the following 2 lines to your `server.js`. It is up to you to ensure they are added to the correct sections.
 
-If you run `node server.js` in your terminal, you'll get an error, Let's fix that.
+```js
+const notesRouter = require('./routers/notes.router');
+```
 
-## Install Express Package and setup a Start script
+```js
+app.use('/v1', notesRouter);
+```
 
-In the terminal window, enter `npm install express` which will install the Express package and insert a reference in the `dependencies` property of your `package.json` file. Open the `package.json` file and you should see the following:
+Restart you app and make sure everything is working properly. Using Postman, hit each endpoint. Does the request to logged properly and does the endpoint return the correct data? Open the app in your browser. Does the app still work correctly?
 
-```json
-  ...
-  "dependencies": {
-    "express": "^4.16.2"
+## Create new POST and DELETE endpoints
+
+Congrats! Now let's implement the new and delete features. We'll walk you thru the new Note feature so you'll be ready to implement the delete Note on your own.
+
+### Implement New Note feature
+
+To add the new Note feature you'll need to update the code in several places. Below is a list of the steps, from user action to saving to database, involved in creating a new note.
+
+* User clicks the `new` button to get a new Note form
+* User fills in the details of the new note and clicks `save`
+* Client-side JS (jQuery) captures the form submit and gathers the data
+* Client-side JS preps the data and makes an AJAX request to the server
+* Server-Side JS (Express) receives the request and validates the data
+* If the data is valid, call the `notes.create` method
+* When the new note has been created, send the results back to the client.
+* Client-Side JS receives the result and updates store then calls `render()`
+
+The above steps are in order, from start to finish. However, a good approach to developing a feature like this is to start on the server and work your way outwards. Let's begin...
+
+#### Update the Server
+
+In the notes router, create a POST `/notes` endpoint. Notice the similarities and differences between the POST & `notes.create` endpoint compared to the PUT & `notes.update`.
+
+```js
+// Post (insert) an item
+router.post('/notes', (req, res, next) => {
+  const { title, content } = req.body;
+
+  const newItem = { title, content };
+  /***** Never trust users - validate input *****/
+  if (!newItem.title) {
+    const err = new Error('Missing `title` in request body');
+    err.status = 400;
+    return next(err);
+  }
+
+  notes.create(newItem, (err, item) => {
+    if (err) {
+      return next(err);
+    }
+    if (item) {
+      res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item);
+    } else {
+      next();
+    }
+  });
+});
+```
+
+Use Postman to confirm the endpoint is working by POSTing a new Note. Then, still using Postman, call the GET `/notes` endpoint. Does your new note show up in the list? When you call GET `/notes/:id` with the new ID, does it return properly?
+
+#### Update the Client
+
+Now that we know the server has a good POST `/notes` endpoint we update the client to commicate with it. That means starting with the `$.ajax` call. In the `/public/scripts/api.js` file add the following method to the API object.
+
+```js
+...
+  create: function (obj, callback) {
+    $.ajax({
+      type: 'POST',
+      url: '/v1/notes',
+      contentType: 'application/json',
+      dataType: 'json',
+      processData: false,
+      data: JSON.stringify(obj),
+      success: callback
+    });
+  },
+...
+```
+
+Now test your new `api.create()` method. Add this temporary bit of code the `/public/scripts/index.js` file right after the `api.search()` call.
+
+```js
+  const newNote = {
+    title: 'new note',
+    content: 'the body'
+  }
+  api.create(newNote, response => {
+    console.log(response)
+  });
+```
+
+Do you see a new note in the console? Using Postman, call the GET `/notes` endpoint. Do you see the new note in the list?
+
+Great! Now we'll create a small form which when submitted will clear the edit form so we can submit a new Note. Insert the following form right after `<h2>Note</h2>` on line 34 of `/public/index.html`.
+
+```html
+    <article>
+      <header>
+        <h2>Note</h2>
+        <!--Insert this form-->
+        <form id="new-note-form" class="js-start-new-note-form">
+          <button type="submit">new +</button>
+        </form>
+
+      </header>
+      <form id="note-edit-form" class="js-note-edit-form">
+   ...
+```
+
+Following the pattern we've established, create a new function with an Event Listener and Event Handler which listens for the form submit and clears the edit form by removing the `currentNote` and re-rendering the page.
+
+In `/public/scripts/noteful.js` add the following function.
+
+```js
+function handleNoteStartNewSubmit() {
+  $('.js-start-new-note-form').on('submit', event => {
+    event.preventDefault();
+    store.currentNote = false;
+    render();
+  });
+}
+```
+
+Remember to add the function to the `bindEventListeners` function
+
+```js
+function bindEventListeners() {
+    handleNoteItemClick();
+    handleNoteSearchSubmit();
+
+    handleNoteFormSubmit();
+    handleNoteStartNewSubmit(); // <<== Add this
   }
 ```
 
-While still in the file, add a `"start": "node server.js"` command to the `scripts` property. This will allow you to run `npm start` which will in-turn execute the `node server.js` command.
-
-```json
-  ...
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  ...
-```
-
-Once your dependencies have downloaded, open the project in your text editor and start your local dev server using `npm start`. Or, if you'd like to automatically reload on source code upon changes, then run `nodemon server.js`.
-
-Now, if you run `node server.js` in your terminal you should see a 'Hello Noteful!' message in the console.
-
-## Create Express App and setup a Static Server
-
-In 3 easy steps,, we'll create a simple Express app that can server static files.
-
-1) Open `server.js` file and add `const app = express();` to create an express app.
-2) Next add `app.use(express.static('public'));` which tells node to use the `express.static` built-in middleware. You can find more information in the [Serving static files in Express](https://expressjs.com/en/starter/static-files.html) documentation.
-3) Add `app.listen(8080)` which starts the server and listens on port 8080 for connections.
-
-The resulting `server.js` file should look something like this.
+Finally, update the existing `handleNoteFormSubmit()` function to conditionally call `api.update` or `ap.save`. There are several ways to tackle the conditional logic. The chosen solution checks to see if the `currentNote.id` exists. If it does then we must be editing, so send `api.update`. If `currentNote.id` is falsey then we must be adding so call `api.create`
 
 ```js
-'use strict';
+  function handleNoteFormSubmit() {
+    $('.js-note-edit-form').on('submit', function (event) {
+      event.preventDefault();
 
-const express = require('express');
+      const editForm = $(event.currentTarget);
 
-const data = require('./db/notes');
+      const noteObj = {
+        id: store.currentNote.id,
+        title: editForm.find('.js-note-title-entry').val(),
+        content: editForm.find('.js-note-content-entry').val()
+      };
 
-const app = express();
-app.use(express.static('public'));
+      if (store.currentNote.id) {
 
-// Listen for incoming connections
-app.listen(8080, function () {
-  console.info(`Server listening on ${this.address().port}`);
-}).on('error', err => {
-  console.error(err);
-});
+        api.update(store.currentNote.id, noteObj, updateResponse => {
+          store.currentNote = updateResponse;
 
+          api.search(store.currentSearchTerm, updateResponse => {
+            store.notes = updateResponse;
+            render();
+          });
+
+        });
+
+      } else {
+
+        api.create(noteObj, updateResponse => {
+          store.currentNote = updateResponse;
+
+          api.search(store.currentSearchTerm, updateResponse => {
+            store.notes = updateResponse;
+            render();
+          });
+
+        });
+      }
+
+    });
+  }
 ```
 
-At this point, you should be able to browse to `http://localhost:8080/` in Chrome and it should display the basic Noteful app. But if you look in Chrome Dev Tools you'll see the following error:
+Note, the nested `api.search()` call inside `api.update()` and `api.create`. This brute-force approach keeps the client's store in sync with the server. There are certainly better ways to accomplish this but it is beyond the scope of our challenge and better accomplished using frameworks such as React.
 
-```txt
-Failed to load resource: the server responded with a status of 404 (Not Found) :8080/v1/notes/
+## Add Delete Note
+
+Your challenge will be implement the delete note feature. We've provided the code for the delete button, but it is your responsiblity to implement the delete endpoint on the server as well as the event handler and api call.
+
+To get started, add the following button to the `generateNotesList()` function.
+
+```html
+<button class="removeBtn js-note-delete-button">X</button>
 ```
 
-This is because we have not setup the proper GET endpoint for the application. Let's do that now.
-
-## Create GET notes list and details endpoints
-
-The client is expecting to find endpoints which match RESTful guideslines, which you'll learn more about later. You will create 2 endpoints.
-
-1) GET `/v1/notes` returns a list of notes. Later, we'll add the ability to search/filter notes as well
-2) GET `/v1/notes/:id` returns a specific note based on the ID provided.
-
-Start by adding the following to your server.js to return the array of notes.
+Your `generateNotesList()` function should looks like this:
 
 ```js
-app.get('/v1/notes', (req, res) => {
-  res.json(data);
-});
+function generateNotesList(list, currentNote) {
+    const listItems = list.map(item => `
+    <li data-id="${item.id}" class="js-note-element ${currentNote.id === item.id ? 'active' : ''}">
+      <a href="#" class="name js-note-show-link">${item.title}</a>
+      <button class="removeBtn js-note-delete-button">X</button>
+    </li>`);
+    return listItems.join('');
+  }
 ```
 
-Test the endpoint using Postman. It should return an array with the 10 notes in `/db/notes.json`. If that works then check it with the sample client.
+Tasks:
 
-The client should load and display the list of notes in the client. The client is already wired-up to listen for click events and call `api.details(id)` to retrieve the item.
+* Create DELETE endpoint on server
+* Create function to listen for the delete event on the client
+* Create the AJAX in the `api.js` to send the request to the server
+* Don't forget to add the event listener function to `bindEventListeners()`
 
-Next, you need to create the proper GET details endpoint which accepts an ID using [named route parameters](https://expressjs.com/en/guide/routing.html#route-parameters). Using the ID passed, find the correct note in the array and return it using [`.json()` method](https://expressjs.com/en/4x/api.html#res.json). Below is a hint on how to retrieve the item using the [Array.find()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find) method.
-
-```js
-data.find(item => item.id === id);
-```
-
-## Update the client and server to support a search
-
-Again, the client is already wired-up. The search form submit event handler function builds a query object with a `searchTerm` property and passes it to `api.search()`. The `api.search()` method passes the object to `$.ajax` which transforms the object into a query-string like this: `{ searchTerm : cats }` becomes `?searchTerm=cats`
-
-In `server.js` you need to update the `app.get('/v1/notes', ...)` endpoint you created earlier to retrieve the query-string on the [req.query](https://expressjs.com/en/4x/api.html#req.query) object.
-
-Once you have the `searchTerm`, you can search the array to find the proper results. There are several ways to accomplish this task. Might we suggest [Array.filter()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) and [String.includes()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes). Once you've obtained the proper set, update `res.json(data)` to return the filtered list.
+Good Luck!
