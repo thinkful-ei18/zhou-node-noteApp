@@ -4,12 +4,10 @@
 const noteful = (function () {
 
   function render() {
-
     const editForm = $('.js-note-edit-form');
     const notesList = generateNotesList(store.notes, store.currentNote);
     $('.js-notes-list').html(notesList);
-    console.log(store.currentNote);
-    if(!store.currentNote){
+    if (store.creating) {
       editForm.find('.js-note-title-entry').val('');
       editForm.find('.js-note-content-entry').val('');
       return;
@@ -43,14 +41,13 @@ const noteful = (function () {
   function handleNoteItemClick() {
     $('.js-notes-list').on('click', '.js-note-show-link', event => {
       event.preventDefault();
-
       const noteId = getNoteIdFromElement(event.currentTarget);
-
-      api.details(noteId, response => {
-        store.currentNote = response;
-        render();
-      });
-
+      api.details(noteId)
+        .then(response => {
+          store.currentNote = response;
+          render();
+        })
+        .catch(err => console.log(err))
     });
   }
 
@@ -58,70 +55,70 @@ const noteful = (function () {
     $('.js-notes-search-form').on('submit', event => {
       event.preventDefault();
       const searchTerm = $('.js-note-search-entry').val();
-      store.currentSearchTerm =  searchTerm ? { searchTerm } : {};
-      
-      api.search(store.currentSearchTerm, response => {
-        console.log(response);
-        store.notes = response;
-        render();
-      });
-    });
+      store.currentSearchTerm = searchTerm ? {
+        searchTerm
+      } : {};
+      api.search(store.currentSearchTerm)
+        .then(response => {
+          store.notes = response;
+          render()
+        })
+        .catch(err => console.log(err))
+    })
   }
-
+  
   function handlenoteFormSubmit() {
-    $('.js-note-edit-form').submit( event => {
+    $('.js-note-edit-form').submit(event => {
       event.preventDefault();
-
       const editForm = $(event.currentTarget);
       const noteObj = {
         title: editForm.find('.js-note-title-entry').val(),
         content: editForm.find('.js-note-content-entry').val(),
-      };
-      console.log('my submit obj', noteObj);
-      console.log('creating: ', store.creating);
-      if(store.creating){
+      }
+      if (store.creating) {
+        console.log('creating')
         // do something about creating
-        api.create(noteObj, (res) => {
-          //return the obj{id title content}
-          console.log('create success');
-          store.creating = false;
-          store.currentNote = res;
-          console.log('before', store.notes);
-          store.notes.push(res);
-          console.log('after',store.notes);
-          render();
-        });
-        render();
-      }else{
-        noteObj.id = store.currentNote.id;
-        api.update(noteObj.id, noteObj, updateRes => {
-          console.log('client/noteful');
-          store.currentNote = updateRes;
-          const oldNote = store.notes.find( note => note.id === noteObj.id);
-          Object.assign(oldNote, updateRes);
-          render();
-        });
+        api.create(noteObj)
+          .then((res) => {
+            console.log(res)
+            store.createNote(res) // set currentNote && turn creating = false && push newItem
+            render();
+          })
+          .catch(err => console.log(err))
+      } else {
+        console.log('updating')
+        const id = store.currentNote.id;
+        api.update(id, noteObj)
+          .then(updateRes => {
+            store.updateNote(id, updateRes)
+            render();
+          })
+          .catch(err => console.log(err))
       }
 
     });
   }
 
-  function handleCreateNewItem(){
-    $('.js-note-edit-form').on('click','#new-btn', event => {
+  function handleCreateNewItem() {
+    $('.js-note-edit-form').on('click', '#new-btn', event => {
       store.creating = true;
-      store.currentNote = null;
+      console.log('creating new')
+      // store.currentNote = null;
+      render();
     });
   }
 
-  function handleDeleteItem(){
-    $('.js-note-edit-form').on('click','#delete-btn', event => {
+  function handleDeleteItem() {
+    $('.js-note-edit-form').on('click', '#delete-btn', event => {
       const id = store.currentNote.id;
-      api.delete(id, (res) => {
-        console.log('delete success');
-        store.notes = store.notes.filter( note => note.id !== id);
-        store.currentNote = false;
-        render();
-      });
+      api.delete(id)
+        .then((res) => {
+          console.log('delete success');
+          store.notes = store.notes.filter(note => note.id !== id);
+          store.currentNote = false;
+          render();
+        })
+        .catch(err => console.log(err));
     });
   }
 

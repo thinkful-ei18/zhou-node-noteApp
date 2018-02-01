@@ -1,10 +1,23 @@
-'use strict';
-console.log('hi');
-function doSomething(option1, option2, option3){
-  //do something
-  console.log(option1,option2,option3);
+function coinFlip(delay) {
+  console.log('running coinflip')
+  return new Promise((resolve, reject) => {
+    setTimeout(function () {
+      const isRunning = Boolean(Math.round(Math.random()))
+      isRunning ? resolve('Head!') : reject('Tail!')
+    }, delay)
+  })
 }
 
-doSomething('apple');
-doSomething('apple','banana');
-doSomething('apple','banana','pinnaple');
+coinFlip(1)
+  .then(result => {
+    console.log(result)
+    return coinFlip(1)
+  })
+  .then(result => {
+    console.log(result)
+    return coinFlip(1)
+  })
+  .then(result => {
+    console.log('you win')
+  })
+  .catch(err => console.log(err))

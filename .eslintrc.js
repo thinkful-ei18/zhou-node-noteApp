@@ -25,15 +25,13 @@ module.exports = {
   //ESLint rules: Severity Levels: off = 0 | warn = 1 | error = 2
 
   "rules": {
-    "strict": ["error", "safe"],   	//prefer `'use-strict';` pragma
     "eqeqeq": [2, "allow-null"],
-    "no-console": "off",          	//ignores `console.log()`
     "no-unused-vars": ["warn", { "args": "after-used", "ignoreRestSiblings": false }],
     "no-eval": "error",            	//disallows `eval()` usage
     "quotes": [2, "single", "avoid-escape"], //prefer single quotes over double quotes
     "indent": ["error", 2, {		// enforce 2 space indents (not tabs)
       "SwitchCase": 1				// clauses with 2 spaces with respect to switch statements
     }],
-    "semi": ["error", "always"]    //enforce semi-colon usage
+    "no-console": 0
   }
 }
