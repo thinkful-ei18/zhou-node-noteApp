@@ -27,7 +27,7 @@ const simDB = {
     }, DELAY);
   },
 
-  filter: function (term, callback) {
+  search: function (term, callback) {
     setTimeout(() => {
       try {
         let list = term ? this.data.filter(item => item.title.includes(term)) : this.data;

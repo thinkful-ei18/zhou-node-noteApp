@@ -36,7 +36,12 @@
       <form id="note-edit-form" class="js-note-edit-form">
         <input type="text" name="note-title" class="js-note-title-entry" required placeholder="title">
         <textarea name="note-content" class="js-note-content-entry" placeholder="content"></textarea>
-        <button type='submit'> SAVE </button>
+        <div class='button wrapper'>
+          <button type='submit'> SAVE </button>
+          <button type='button' id='new-btn'> NEW </button>
+          <button type='button' id='delete-btn'> DELETE </button>
+        </div>
+
       </form>
     </article>
 

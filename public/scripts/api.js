@@ -21,6 +21,16 @@ const api = {
     });
   },
 
+  create(obj, callback){
+    $.ajax({
+      type:'POST',
+      dataType:'json',
+      url:'v1/notes/',
+      contentType:'application/json',
+      data:JSON.stringify(obj),
+      success: callback
+    });
+  },
   update: function(id,obj,callback) {
     $.ajax({
       type:'PUT',
@@ -28,6 +38,13 @@ const api = {
       contentType:'application/json',
       url:`v1/notes/${id}`,
       data: JSON.stringify(obj),
+      success: callback
+    });
+  },
+  delete(id,callback){
+    $.ajax({
+      type:'DELETE',
+      url:`v1/notes/${id}`,
       success: callback
     });
   }
