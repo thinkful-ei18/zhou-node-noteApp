@@ -36,7 +36,7 @@ app.use( (err, req, res, next) => {
 });
 
 if(require.main  === module){
-  app.listen( PORT,  function() {
+  app.listen( process.env.PORT||PORT,  function() {
     console.info(`server start in ${this.address().port}`);
   }).on('error', err => {
     console.error(err);

@@ -109,7 +109,7 @@ describe('Testing RESTful API endpoints', function () {
         expect(res.body.content).to.equal('newItem')
       })
   })
-  it('should response with status 400 with invalid request on PUT', function(){
+  it('should response status 400 with invalid request on PUT', function(){
     const updateData ={yapooo: 'mybadf'}
     return chai.request(app)
       .get('/v1/notes')
