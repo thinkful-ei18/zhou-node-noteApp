@@ -21,7 +21,7 @@ app.use(morgan('dev'));
 //===============================
 // import notes router and mount the router path
 const notesRouter = require('./routers/notes.router');
-app.use('/v1', notesRouter);
+app.use('/v1', notesRouter)
 
 
 //=================================
@@ -30,13 +30,18 @@ app.use( (err, req, res, next) => {
   console.log(err);
   res.status(err.status || 501);
   res.json({
-    message: err.message,
+    message: 'line 33'+ err.message,
     error: err
   });
 });
 
-app.listen( PORT,  function() {
-  console.info(`server start in ${this.address().port}`);
-}).on('error', err => {
-  console.error(err);
-});
+if(require.main  === module){
+  app.listen( PORT,  function() {
+    console.info(`server start in ${this.address().port}`);
+  }).on('error', err => {
+    console.error(err);
+  });
+}
+
+module.exports = app
+

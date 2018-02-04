@@ -3,7 +3,6 @@ const router = express.Router();
 const data = require('../db/notes.json');
 const simDB = require('../db/simdb');
 const notes = simDB.initialize(data);
-// router.use(express.json());
 
 //get all notes
 router.get('/notes', (req, res, next) => {
@@ -12,17 +11,18 @@ router.get('/notes', (req, res, next) => {
     null
   notes.filter(searchTerm)
     .then((list) => {
-      list ? res.json(list) : next()
+      list ? res.status(200).json(list) : next()
     })
     .catch(next)
-});
+})
+
 //================================
 //get note == id
 router.get('/notes/:id', (req, res, next) => {
-  const id = req.params.id;
+  const id = req.params.id
   notes.find(id)
     .then((note) => {
-      res.json(note);
+      res.status(200).json(note);
     })
     .catch(next)
 });
@@ -32,52 +32,57 @@ router.post('/notes', (req, res, next) => {
 
   //validate incoming client req
   //required fields: title content;
-  const incomingItem = req.body;
-  const noteObj = {};
-  const requiredKeys = ['title', 'content'];
+  const incomingItem = req.body
+  const noteObj = {}
+  const requiredKeys = ['title', 'content']
   for (let field of requiredKeys) {
     if (!(field in incomingItem)) {
-      return next(Error(`missing ${field}`));
+      return res.status(400).json({message:`missing ${field}`})
     }
-    noteObj[field] = incomingItem[field];
+    if(incomingItem[field] === '' || typeof incomingItem[field] !=='string'){
+      return res.status(400).end()
+    }
+    noteObj[field] = incomingItem[field]
   }
   //create note
   notes.create(noteObj)
-    .then(res_item => {
-      console.log('create new Item success');
-      res.json(res_item);
+    .then(note => {
+      console.log('create new Item success')
+      res.status(201).json(note)
     })
     .catch(next)
 });
 //===============================
 // update data
 router.put('/notes/:id', (req, res, next) => {
-  const id = req.params.id;
-  const updateData = req.body;
-  const updateObj = {};
+  const id = req.params.id
+  const updateData = req.body
   const requiredFields = ['title', 'content'];
-  for (let field of requiredFields) {
-    if (field in updateData) {
-      updateObj[field] = updateData[field];
+  Object.keys(updateData).forEach( key => {
+    if(!requiredFields.includes(key)){
+      // console.log('what?????')
+      return res.status(400).json({status:400, message:'invalid input'})
     }
-  }
-  notes.update(id, updateObj)
-    .then((note) => {
-      console.log(`update ${note.title} success`);
-      res.json(updateObj);
+  })
+  notes.update(id, updateData)
+    .then(note => {
+      res.status(201).json(note)
     })
     .catch(next)
-});
+})
 //==============================
 //delete route
 router.delete('/notes/:id', (req, res, next) => {
   const id = req.params.id;
   notes.delete(id)
     .then((res_note) => {
-      res.send('delete success');
+      res.status(200).json({
+        status:200,
+        message:'delete success'
+      })
     })
     .catch(next)
-});
+})
 
 
 
